@@ -1,0 +1,32 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+  branches:
+    include:
+      - main
+
+resources:
+  repositories:
+    - repository: githubrepo
+      type: git
+      name: ashwani79891/BICEP  # Replace with your GitHub repo
+      endpoint: YourGitHubConnection # Replace with your GitHub service connection
+
+jobs:
+  - job: Sync
+    steps:
+      - checkout: githubrepo
+        persistCredentials: true
+        clean: true
+
+      - task: CmdLine@2
+        inputs:
+          script: |
+            git remote add azuredevops https://$(System.TeamFoundationCollectionUri)$(System.TeamProject)/_git/YourAzureDevOpsRepo # Replace with your Azure DevOps repo name
+            git fetch --all
+            git push azuredevops --all
+            git push azuredevops --tags
+          workingDirectory: '$(githubrepo)'
